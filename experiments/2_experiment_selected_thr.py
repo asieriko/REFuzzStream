@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REFuzzStreamSummarizer
 from src.functions.merge import FuzzyDissimilarityMerger
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
@@ -49,9 +49,6 @@ def experiment(dataset, chunksize=1000, min_fmics=5, max_fmics=100,start=0,end=0
         numChunks = int(57_000 / chunksize)
         n_clusters = 6
 
-    # currentdir = os.path.dirname(os.path.realpath(__file__))
-    # parentdir = os.path.dirname(currentdir)
-    # sys.path.append(parentdir)
     output_path = Path.cwd() / "output"/ dataset
     Path(output_path).mkdir(parents=True,exist_ok=True)
     
@@ -62,7 +59,7 @@ def experiment(dataset, chunksize=1000, min_fmics=5, max_fmics=100,start=0,end=0
         df = pd.DataFrame(columns=['Chunk', 'Purity', 'pCoefficient',
                                    'pEntropy', 'XieBeni', 'MPC',
                                    'FukuyamaSugeno_1', 'FukuyamaSugeno_2'])
-        summarizer = REdFuzzStreamSummarizer(
+        summarizer = REFuzzStreamSummarizer(
             max_fmics=max_fmics,
             distance_function=EuclideanDistance.distance,
             merge_threshold=threshIDX,

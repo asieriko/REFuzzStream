@@ -1,4 +1,4 @@
-# RE-dFuzzStream: Dispersion-Based Fuzzy Data Stream Clustering
+# RE-FuzzStream: Dispersion-Based Fuzzy Data Stream Clustering
 
 Implementation of the fuzzy data stream clustering algorithm from the article [Data stream clustering: introducing recursively extendable aggregation functions for incremental cluster fusion processes](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=6221036).
 
@@ -50,7 +50,7 @@ To run examples and generate graphics:
 ## How to use it
 
 ```python
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REdFuzzStreamSummarizer
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
 from src.functions.membership import FuzzyCMeansMembership
@@ -60,7 +60,7 @@ sm = 1
 max_fmics = 100
 chunksize = 1000
 
-summarizer = REdFuzzStreamSummarizer(
+summarizer = REFuzzStreamSummarizer(
     distance_function=EuclideanDistance.distance,
     merge_threshold = thresh,
     merge_function=AllMergers[sm](sm, thresh, max_fmics),
@@ -99,27 +99,90 @@ class ExampleFunction:
   def memberships(distances, fuzzy_factor):
     # Do Something
     return []
-    
-def merge_function(fmics, threshold):
-  # Do Something
-  return fmics
 
-summarizer = DFuzzStreamSummarizer(
+
+# We create the Recursive Probabilistic Sum Aggregation function
+# with the product as overlap function
+from src.function.merge import AbstractFuzzyDissimilarityMerger    
+
+# Probabilistic Sum Abstract Class
+# This class has to implement the
+# _merge_matrix method for the i-th and j-th microclusters
+# _similarity method to return the current similarity between the two
+class FuzzyAbstractPSMerger(AbstractFuzzyDissimilarityMerger):
+
+    def __init__(self, sm, threshold, max_fmics):
+        super().__init__(sm, threshold, max_fmics)
+
+    def _merge_matrix(self, i, j):
+        # Initialization
+        self.similMatrix[:i, i, 2] = np.maximum(
+            self.similMatrix[:i, i, 2],
+            self.similMatrix[:i, j, 2])
+        self.similMatrix[i, i + 1:j, 2] = np.maximum(
+            self.similMatrix[i, i + 1:j, 2],
+            self.similMatrix[i + 1:j, j, 2])
+        self.similMatrix[i, j + 1:, 2] = np.maximum(
+            self.similMatrix[i, j + 1:, 2],
+            self.similMatrix[j, j + 1:, 2])
+        # Product
+        self.similMatrix[:i, i, 1] = (
+            self.similMatrix[:i, i, 1] *
+            self.similMatrix[:i, j, 1])
+        self.similMatrix[i, i + 1:j, 1] = (
+            self.similMatrix[i, i + 1:j, 1] *
+            self.similMatrix[i + 1:j, j, 1])
+        self.similMatrix[i, j + 1:, 1] = (
+            self.similMatrix[i, j + 1:, 1] *
+            self.similMatrix[j, j + 1:, 1])
+        # Similarity
+        self.similMatrix[:i, i, 0] = 1 - self.similMatrix[:i, i, 0]
+        self.similMatrix[i, i + 1:j, 0] = 1 - self.similMatrix[i, i + 1:j, 0]
+        self.similMatrix[i, j + 1:, 0] = 1 - self.similMatrix[i, j + 1:, 0]
+
+    def _func(self, membership_i, membership_j):
+        pass
+
+    def _similarity(self, fmics, memberships, i, j):
+        result = self._func(memberships[i], memberships[j])
+        if self.similMatrix[i, j, 2] == 0:
+            self.similMatrix[i, j, 1] = (1 - result)
+            self.similMatrix[i, j, 2] = 1
+        else:
+            self.similMatrix[i, j, 1] *= (1 - result)
+        self.similMatrix[i, j, 0] = 1 - self.similMatrix[i, j, 1]
+        similarity = self.similMatrix[i, j, 0]
+        return similarity
+
+# Probabilistic Sum with Product class
+# this class has to implement the
+# _func function to aggregate the memberships of
+# the elements
+class FuzzyPSProdMerger(FuzzyAbstractPSMerger):
+
+    def __init__(self, sm, threshold, max_fmics):
+        super().__init__(sm, threshold, max_fmics)
+
+    def _func(self, membership_i, membership_j):
+        prod = membership_i * membership_j
+        return prod
+
+
+summarizer = REFuzzStreamSummarizer(
   # Using lambda
   distance_function=lambda v1, v2: v1 - v2,
   # Using class method
   membership_function=ExampleFunction.memberships,
-  # Using function
-  merge_function=merge_function
+  merge_function=FuzzyPSProdMerger.merge
 )
 ```
 
 To summarize examples, passes one example at a time to summarizer with its respective tag and timestamp.
 
 ```python
-from d_fuzzstream import DFuzzStreamSummarizer
+from src.REFuzzStream import REdFuzzStreamSummarizer
 
-summarizer = DFuzzStreamSummarizer()
+summarizer = REFuzzStreamSummarizer()
 summarizer.summarize([0,1], 'red', 1)
 ```
 

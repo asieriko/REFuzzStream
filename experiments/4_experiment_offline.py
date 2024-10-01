@@ -9,7 +9,7 @@ import numpy as np
 from pathlib import Path
 import argparse
 
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REFuzzStreamSummarizer
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
 from src.functions.membership import FuzzyCMeansMembership
@@ -115,7 +115,7 @@ def run_experiment(dataset_params, start=0, end=-1):
 
     for vecIndex, simIDX in enumerate(sm[start:end]):
         threshIDX = threshList[start+vecIndex]
-        summarizer = REdFuzzStreamSummarizer(
+        summarizer = REFuzzStreamSummarizer(
             max_fmics=max_fmics,
             distance_function=EuclideanDistance.distance,
             merge_threshold=threshIDX,

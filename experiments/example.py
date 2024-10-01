@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath("."))
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REFuzzStreamSummarizer
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
 from src.functions.membership import FuzzyCMeansMembership
@@ -32,7 +32,7 @@ if not os.path.isdir("./Img/"):
 datasetPath = Path.cwd() / "datasets"/ "DS1.csv"
 
 df = pd.DataFrame(columns = ['Chunk', 'Purity', 'pCoefficient', 'pEntropy', 'XieBeni','MPC','FukuyamaSugeno_1','FukuyamaSugeno_2'])
-summarizer = REdFuzzStreamSummarizer(
+summarizer = REFuzzStreamSummarizer(
     distance_function=EuclideanDistance.distance,
     merge_threshold = thresh,
     merge_function=AllMergers[sm](sm, thresh, max_fmics),

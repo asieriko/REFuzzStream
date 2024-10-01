@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import silhouette_samples, silhouette_score,adjusted_rand_score
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REFuzzStreamSummarizer
 from src.functions.merge import FuzzyDissimilarityMerger
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
@@ -87,7 +87,7 @@ def experiment(dataset, chunksize=1000, min_fmics=5, max_fmics=100,start=0,end=0
                                'FukuyamaSugeno_2', 'Silhouette'])  
     for simIDX in sm[start:end]:
         for thNum, threshIDX in enumerate(threshList):
-            summarizer = REdFuzzStreamSummarizer(
+            summarizer = REFuzzStreamSummarizer(
                 max_fmics=max_fmics,
                 distance_function=EuclideanDistance.distance,
                 merge_threshold=threshIDX,

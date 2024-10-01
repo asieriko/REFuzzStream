@@ -5,7 +5,7 @@ from pathlib import Path
 import os, sys
 sys.path.append(os.path.abspath("."))
 
-from src.RE_dFuzzStream import REdFuzzStreamSummarizer
+from src.REFuzzStream import REFuzzStreamSummarizer
 from src.functions.merge import AllMergers
 from src.functions.distance import EuclideanDistance
 from src.functions.membership import FuzzyCMeansMembership
@@ -16,7 +16,7 @@ max_fmics = 100
 datasetPath = Path.cwd() / "datasets"/ "Benchmark1_11000.csv"
 chunk_size = 1000
 
-summarizer = REdFuzzStreamSummarizer(
+summarizer = REFuzzStreamSummarizer(
     distance_function=EuclideanDistance.distance,
     merge_threshold = thresh,
     merge_function=AllMergers[sm](sm, thresh, max_fmics),
@@ -73,7 +73,7 @@ anim = FuncAnimation(
 
 writer_gif = PillowWriter(fps=1)
 
-anim.save("output/summary_sm_"+str(idxSimilarity)+"th_"+str(thresh)+".gif", writer=writer_gif)
+anim.save("output/summary_sm_"+str(sm)+"th_"+str(thresh)+".gif", writer=writer_gif)
 
 plt.close()
 csv.close()
