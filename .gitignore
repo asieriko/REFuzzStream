@@ -1,0 +1,9 @@
+__pycache*
+.idea*
+.spyproject
+.DS_Store*
+Img/*
+output/*
+chunkFMICs.txt
+directOUTPUT.txt
+
